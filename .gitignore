@@ -1,0 +1,4 @@
+# Project exclude paths
+/commons/target/
+/rabbitmq-email/target/
+/taskquest-server/target/

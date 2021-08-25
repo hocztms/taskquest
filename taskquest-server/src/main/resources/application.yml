@@ -1,0 +1,39 @@
+# DataSource Config
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/task?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: password
+  rabbitmq:
+    host: 47.106.84.138
+    port: 5672
+    username: hocztms
+    password: 111111
+    publisher-returns: true
+    publisher-confirm-type: correlated
+
+  cache:
+    type: redis
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 2
+    lettuce:
+      shutdown-timeout: 0
+
+    timeout: 1200
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: tb_
+

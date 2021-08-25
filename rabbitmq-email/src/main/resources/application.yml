@@ -1,0 +1,23 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: RABBITMQ
+  rabbitmq:
+    host: 47.106.84.138
+    port: 5672
+    username: hocztms
+    password: 111111
+    listener:
+
+      simple:
+        acknowledge-mode: manual
+      template:
+        mandatory: true
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 1107578936@qq.com
+    password: ydhebwdqmghfibbg
+    default-encoding: UTF-8
+    protocol: smtp

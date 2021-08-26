@@ -12,6 +12,8 @@ public interface SuperAdminService {
 
     RestResult superAdminFindCollegeByPage(Long page);
 
+    RestResult superAdminDeleteCollegeAdminByUsername(String username);
+
     RestResult superAdminUpdateCollege(CollegeVo collegeVo);
 
     RestResult superAdminDeleteCollegeById(Long collegeId);

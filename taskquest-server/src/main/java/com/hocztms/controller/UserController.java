@@ -8,6 +8,7 @@ import com.hocztms.service.EmailService;
 import com.hocztms.vo.EmailVo;
 import com.hocztms.vo.UserAuthVo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +34,7 @@ public class UserController {
 
 
     //认证接口
+    @ApiOperation("用户认证")
     @PostMapping("/userDoAuth")
     public RestResult userDoAuth(@Validated @RequestBody UserAuthVo authVo, HttpServletRequest request){
         String account = jwtAuthService.getAccountFromToken(request);
@@ -40,12 +42,14 @@ public class UserController {
     }
 
 
+    @ApiOperation("发送邮箱绑定验证码")
     @PostMapping("/sendEmailBindCode")
     public RestResult sendEmailBindCode(@Validated @RequestBody EmailVo emailVo,HttpServletRequest request){
         String account = jwtAuthService.getAccountFromToken(request);
         return emailService.sendUserEmailBindCode(emailVo,account);
     }
 
+    @ApiOperation("绑定邮箱")
     @PutMapping("/bindEmail")
     public RestResult sendEmailBindCode(
             @ApiParam(value = "格式 {\"code\":\"code\"}") @RequestBody String json, HttpServletRequest request){
@@ -54,6 +58,8 @@ public class UserController {
         return authService.userBindEmail(code,account);
     }
 
+
+    @ApiOperation("获得用户个人信息")
     @GetMapping("/getUserInfo")
     public RestResult getUserInfo(HttpServletRequest request){
 

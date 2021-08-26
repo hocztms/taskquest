@@ -12,5 +12,7 @@ public interface ClassService {
 
     void deleteClass(ClassEntity classEntity);
 
+    ClassEntity findClassEntityById(Long id);
+
     List<ClassEntity> findClassByCollegeId(Long collegeId,Long page);
 }

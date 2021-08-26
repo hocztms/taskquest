@@ -50,4 +50,12 @@ public class AdminServiceImpl implements AdminService {
         wrapper.eq("username", username);
         return adminMapper.selectOne(wrapper);
     }
+
+    @Override
+    @CacheEvict(value = "admin",key = "#username")
+    public void deleteAdminByUsername(String username) {
+        QueryWrapper<AdminEntity>wrapper = new QueryWrapper<>();
+        wrapper.eq("username",username);
+        adminMapper.delete(wrapper);
+    }
 }

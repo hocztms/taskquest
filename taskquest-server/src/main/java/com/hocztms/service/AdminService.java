@@ -14,4 +14,6 @@ public interface AdminService {
     List<AdminRoleEntity> findAdminRolesByUsername(String username);
 
     AdminEntity findAdminByUsername(String username);
+
+    void deleteAdminByUsername(String username);
 }

@@ -1,6 +1,7 @@
 package com.hocztms.utils;
 
 import com.hocztms.dto.TaskDto;
+import com.hocztms.entity.TaskEntity;
 import com.hocztms.entity.TaskRecords;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -89,6 +90,14 @@ public class RedisPageUtils {
         redisTemplate.opsForZSet().add(TASK_RECORDS_PREFIX + records.getTaskId(),records,records.getStatus());
         records.setStatus(0);
         redisTemplate.opsForZSet().remove(TASK_RECORDS_PREFIX + records.getTaskId(),records);
+    }
+
+    public void preHeatCollegeTask(List<TaskEntity> taskEntities,Long collegeId){
+        redisTemplate.delete(COLLEGE_TASK_PREFIX +collegeId);
+
+        for (TaskEntity taskEntity:taskEntities){
+            redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX + collegeId,taskEntity,taskEntity.getTaskId());
+        }
     }
 
     public void deleteTaskRecords(TaskRecords records){

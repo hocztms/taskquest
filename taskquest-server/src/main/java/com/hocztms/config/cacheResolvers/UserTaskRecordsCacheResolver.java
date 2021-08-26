@@ -1,4 +1,4 @@
-package com.hocztms.config;
+package com.hocztms.config.cacheResolvers;
 
 import com.hocztms.entity.TaskRecords;
 import lombok.extern.slf4j.Slf4j;

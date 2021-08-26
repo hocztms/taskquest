@@ -15,6 +15,12 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @ApiModel(value = "班级类")
 public class ClassVo {
+
+    @ApiModelProperty(value = "班级id", required = true,example = "0")
+    @NotNull(message = "班级id不能为空")
+    private Long classId;
+
+
     @ApiModelProperty(value = "学院id", required = true,example = "0")
     @NotNull(message = "学院id不能为空")
     private Long collegeId;

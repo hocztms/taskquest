@@ -1,9 +1,10 @@
 package com.hocztms.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hocztms.commons.Email;
 import com.hocztms.commons.RestResult;
-import com.hocztms.config.CollegeTaskPageCacheNames;
+import com.hocztms.config.cacheResolvers.CollegeTaskPageCacheResolver;
 import com.hocztms.dto.TaskDto;
 import com.hocztms.dto.UserDto;
 import com.hocztms.entity.TaskEntity;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -128,7 +130,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @CacheEvict(allEntries = true,cacheResolver = "CollegeTaskPageCacheNames")
+    @CacheEvict(allEntries = true,cacheResolver = "CollegeTaskPageCacheResolver")
     public TaskEntity insertTask(TaskEntity taskEntity) {
         int insert = taskMapper.insert(taskEntity);
         redisPageUtils.addCollegeTaskByCollegeId(new TaskDto(taskEntity.getTaskId(),taskEntity.getCollegeId(),taskEntity.getTaskName(),taskEntity.getTaskContent(),taskEntity.getType(),taskEntity.getNumber(),taskEntity.getPoints(),taskEntity.getStatus()));
@@ -151,15 +153,24 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    @Cacheable(cacheResolver = "CollegeTaskPageCacheNames",key = "#page")
+    @Cacheable(cacheResolver = "CollegeTaskPageCacheResolver",key = "#page")
     public List<TaskDto> findTasksByCollegeId(Long collegeId,Integer status,Integer page, Integer size) {
 
         return taskMapper.selectTaskDtoListByCollegeId(collegeId,status,new Page(page,size));
     }
 
+    @Override
+    public List<TaskEntity> findTaskHotPointList(Long collegeId) {
+        QueryWrapper<TaskEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("college_id",collegeId);
+        wrapper.ge("deadline",new Date());
+        wrapper.eq("status",0);
+        return taskMapper.selectPage(new Page<>(1,RedisPageUtils.PAGE_SIZE*RedisPageUtils.MAX_PAGE),wrapper).getRecords();
+    }
 
-    @Bean("CollegeTaskPageCacheNames")
-    public CollegeTaskPageCacheNames cacheResolver() {
-        return new CollegeTaskPageCacheNames(cacheManager);
+
+    @Bean("CollegeTaskPageCacheResolver")
+    public CollegeTaskPageCacheResolver cacheResolver() {
+        return new CollegeTaskPageCacheResolver(cacheManager);
     }
 }

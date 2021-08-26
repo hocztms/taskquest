@@ -1,7 +1,7 @@
 package com.hocztms.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.hocztms.config.UserTaskRecordsCacheResolver;
+import com.hocztms.config.cacheResolvers.UserTaskRecordsCacheResolver;
 import com.hocztms.entity.TaskRecords;
 import com.hocztms.mapper.TaskRecordsMapper;
 import com.hocztms.service.TaskRecordsService;
@@ -69,10 +69,12 @@ public class TaskRecordsServiceImpl implements TaskRecordsService {
     @Override
     @CacheEvict(cacheResolver = "UserTaskRecordsCacheResolver",allEntries = true,condition = "#taskRecords.deleted==1")
     public void userDeleteTaskRecords(TaskRecords taskRecords) {
-        redisPageUtils.deleteTaskRecords(taskRecords);
         taskRecords.setDeleted(1);
-        recordsMapper.updateById(taskRecords);
         redisPageUtils.addTaskRecords(taskRecords);
+
+        taskRecords.setDeleted(0);
+        redisPageUtils.deleteTaskRecords(taskRecords);
+        recordsMapper.updateById(taskRecords);
     }
 
     @Override

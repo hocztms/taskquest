@@ -58,6 +58,25 @@ public class SuperAdminServiceImpl implements SuperAdminService {
     }
 
     @Override
+    public RestResult superAdminDeleteCollegeAdminByUsername(String username) {
+        try {
+            AdminEntity adminEntity = adminService.findAdminByUsername(username);
+
+            if (adminEntity.getCollegeId()==-1){
+                return ResultUtils.error("无权限");
+            }
+
+            adminService.deleteAdminByUsername(username);
+
+            return ResultUtils.success();
+        }catch (Exception e){
+
+            e.printStackTrace();
+            return ResultUtils.systemError();
+        }
+    }
+
+    @Override
     public RestResult superAdminUpdateCollege(CollegeVo collegeVo) {
         try {
             CollegeEntity collegeEntity = new CollegeEntity(collegeVo.getCollegeId(),collegeVo.getCollegeName());

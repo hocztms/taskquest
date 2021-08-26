@@ -8,9 +8,11 @@ import com.hocztms.vo.TaskVo;
 import java.util.List;
 
 public interface CollegeAdminService {
-    RestResult collegeAdminCreateClass(ClassVo classVo);
+    RestResult collegeAdminCreateClass(ClassVo classVo,String username);
 
-    RestResult collegeAdminUpdateClass(ClassVo classVo);
+    RestResult collegeAdminUpdateClass(ClassVo classVo,String username);
+
+    RestResult collegeAdminDeleteClassByIds(List<Long> ids,String username);
 
     RestResult collegeAdminCreateTask(TaskVo taskVo,String username);
 

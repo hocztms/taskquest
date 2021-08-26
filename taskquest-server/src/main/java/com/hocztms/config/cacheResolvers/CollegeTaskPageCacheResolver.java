@@ -1,4 +1,4 @@
-package com.hocztms.config;
+package com.hocztms.config.cacheResolvers;
 
 import com.hocztms.entity.TaskEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +14,12 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Slf4j
-public class CollegeTaskPageCacheNames extends SimpleCacheResolver implements CacheResolver {
+public class CollegeTaskPageCacheResolver extends SimpleCacheResolver implements CacheResolver {
 
     public static final String CollegeTaskGroup = "collegeTask";
 
 
-    public CollegeTaskPageCacheNames(CacheManager cacheManager) {
+    public CollegeTaskPageCacheResolver(CacheManager cacheManager) {
         super(cacheManager);
     }
 

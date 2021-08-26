@@ -37,9 +37,10 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
 
 
     @Override
-    public RestResult collegeAdminCreateClass(ClassVo classVo) {
+    public RestResult collegeAdminCreateClass(ClassVo classVo, String username) {
         try {
-            classService.insertClass(new ClassEntity(0,classVo.getCollegeId(),classVo.getClassName()));
+            AdminEntity adminEntity = adminService.findAdminByUsername(username);
+            classService.insertClass(new ClassEntity(0,adminEntity.getCollegeId(),classVo.getClassName()));
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
@@ -48,8 +49,49 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
     }
 
     @Override
-    public RestResult collegeAdminUpdateClass(ClassVo classVo) {
-        return null;
+    public RestResult collegeAdminUpdateClass(ClassVo classVo, String username) {
+        try {
+            AdminEntity adminEntity = adminService.findAdminByUsername(username);
+
+            ClassEntity classEntity = classService.findClassEntityById(classVo.getClassId());
+            if (classEntity.getCollegeId()!=adminEntity.getCollegeId()){
+                return ResultUtils.error("无权限");
+            }
+
+            classEntity.setClassName(classVo.getClassName());
+            classService.updateClass(classEntity);
+
+            return ResultUtils.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResultUtils.systemError();
+        }
+    }
+
+    @Override
+    public RestResult collegeAdminDeleteClassByIds(List<Long> ids, String username) {
+        try {
+            AdminEntity adminEntity = adminService.findAdminByUsername(username);
+            for(Long id:ids){
+                ClassEntity classEntityById = classService.findClassEntityById(id);
+
+                if (classEntityById==null){
+                    continue;
+                }
+
+
+                if (classEntityById.getCollegeId()!=adminEntity.getCollegeId()){
+                    throw new RuntimeException("非法操作");
+                }
+
+                classService.deleteClass(classEntityById);
+            }
+
+            return ResultUtils.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResultUtils.systemError();
+        }
     }
 
     @Override
@@ -236,7 +278,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
                             authMessageService.sendCollegeAdminTaskProgress(username,progress);
                         }
 
-                        taskEntity.setStatus(1);
+                        taskEntity.setStatus(0);
                         taskService.updateTaskById(taskEntity);
 
                     }catch (Exception e){

@@ -92,13 +92,15 @@ public class StudentServiceImpl implements StudentService {
                 TaskRecords taskRecords = new TaskRecords(0,taskId,openId,userDto.getStudentId(),userDto.getStudentName(),userDto.getEmail(),0,taskEntity.getType());
                 recordsService.insertTaskRecords(taskRecords);
             }
+
+            //抢单模式
             else {
                 taskEntity.setNumber(taskEntity.getNumber() + 1);
 
 
                 taskService.updateTaskById(taskEntity); // 乐观锁更新失败 会抛出异常
 
-                TaskRecords taskRecords = new TaskRecords(0, taskId, openId, userDto.getStudentId(), userDto.getStudentName(), userDto.getEmail(), 0, taskEntity.getType());
+                TaskRecords taskRecords = new TaskRecords(0, taskId, openId, userDto.getStudentId(), userDto.getStudentName(), userDto.getEmail(), 1, taskEntity.getType());
                 recordsService.insertTaskRecords(taskRecords);
             }
 

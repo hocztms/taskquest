@@ -160,12 +160,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskEntity> findTaskHotPointList(Long collegeId) {
-        QueryWrapper<TaskEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("college_id",collegeId);
-        wrapper.ge("deadline",new Date());
-        wrapper.eq("status",0);
-        return taskMapper.selectPage(new Page<>(1,RedisPageUtils.PAGE_SIZE*RedisPageUtils.MAX_PAGE),wrapper).getRecords();
+    public List<TaskDto> findTaskHotPointList(Long collegeId) {
+        return taskMapper.selectTaskHotPointList(collegeId,new Date(),new Page<>(1,RedisPageUtils.PAGE_SIZE*RedisPageUtils.MAX_PAGE));
     }
 
 

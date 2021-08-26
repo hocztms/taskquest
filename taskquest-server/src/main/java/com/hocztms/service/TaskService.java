@@ -20,6 +20,6 @@ public interface TaskService {
 
     List<TaskDto> findTasksByCollegeId(Long collegeId, Integer status,Integer page, Integer size);
 
-    List<TaskEntity> findTaskHotPointList(Long collegeId);
+    List<TaskDto> findTaskHotPointList(Long collegeId);
 
 }

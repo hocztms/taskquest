@@ -259,7 +259,8 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    HashMap<String,Double> progress = new HashMap<>();
+                    HashMap<String,Integer> progress = new HashMap<>();
+                    progress.put("taskId", (int) taskEntity.getTaskId());
                     try {
                         List<TaskRecords> taskRecords = recordsService.findTaskMemberList(taskId);
 
@@ -273,8 +274,8 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
 
                             userService.updateUserByOpenId(userEntity);
 
-                            progress.put("progress", ((i+1)/size*100.0));
-                            Thread.sleep(10000);
+                            progress.put("progress", (int) ((i+1)/size*100.0));
+                            Thread.sleep(5000);
                             authMessageService.sendCollegeAdminTaskProgress(username,progress);
                         }
 
@@ -283,7 +284,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
 
                     }catch (Exception e){
                         e.printStackTrace();
-                        progress.put("progress", (double) -1);
+                        progress.put("progress", (int) -1);
                         authMessageService.sendCollegeAdminTaskProgress(username,progress);
                     }
                 }

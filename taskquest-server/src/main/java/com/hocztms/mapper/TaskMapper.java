@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -20,6 +21,9 @@ public interface TaskMapper extends BaseMapper<TaskEntity> {
 
     @Select("select * from tb_task where college_id = #{collegeId} and status = #{status} order by task_id desc")
     List<TaskDto> selectTaskDtoListByCollegeId(@Param("collegeId") Long collegeId,@Param("status") Integer status,IPage page);
+
+    @Select("select * from tb_task where college_id = #{collegeId} and deadline > #{deadline} and status = 0")
+    List<TaskDto> selectTaskHotPointList(@Param("collegeId") Long collegeId, @Param("deadline")Date date, IPage page);
 
     //匹配度搜索
     @Select("SELECT * FROM tb_task WHERE status = 0 AND college_id = #{collegeId} AND MATCH (task_name) AGAINST ( #{keyword} IN NATURAL LANGUAGE MODE)")

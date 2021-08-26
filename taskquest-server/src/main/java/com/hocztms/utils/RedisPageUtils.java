@@ -92,11 +92,11 @@ public class RedisPageUtils {
         redisTemplate.opsForZSet().remove(TASK_RECORDS_PREFIX + records.getTaskId(),records);
     }
 
-    public void preHeatCollegeTask(List<TaskEntity> taskEntities,Long collegeId){
+    public void preHeatCollegeTask(List<TaskDto> taskEntities,Long collegeId){
         redisTemplate.delete(COLLEGE_TASK_PREFIX +collegeId);
 
-        for (TaskEntity taskEntity:taskEntities){
-            redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX + collegeId,taskEntity,taskEntity.getTaskId());
+        for (TaskDto taskDto:taskEntities){
+            redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX + collegeId,taskDto,taskDto.getTaskId());
         }
     }
 

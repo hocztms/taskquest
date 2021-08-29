@@ -19,6 +19,10 @@ public interface TaskMapper extends BaseMapper<TaskEntity> {
     @Select("select * from tb_task where task_id = #{taskId}")
     TaskDto selectTaskDtoByTaskId(Long taskId);
 
+    @Select("select * from tb_task where task_id < #{taskId} and status = 0 and college_id = #{collegeId} and deadline>#{deadline}")
+    TaskDto selectRedisTaskDto(@Param("taskId") Long taskId,@Param("collegeId") Long collegeId,@Param("deadline")Date deadline);
+
+
     @Select("select * from tb_task where college_id = #{collegeId} and status = #{status} order by task_id desc")
     List<TaskDto> selectTaskDtoListByCollegeId(@Param("collegeId") Long collegeId,@Param("status") Integer status,IPage page);
 

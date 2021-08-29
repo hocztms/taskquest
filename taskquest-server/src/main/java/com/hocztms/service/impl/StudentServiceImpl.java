@@ -33,35 +33,30 @@ public class StudentServiceImpl implements StudentService {
             UserDto user = userService.findUserDtoByOpenId(openId);
 
             //大于 缓存最大容量
-            if (page.intValue()>(redisPageUtils.getCollegeTaskSizeByCollegeId(user.getCollegeId())/RedisPageUtils.PAGE_SIZE)){
+            if (page>RedisPageUtils.MAX_PAGE){
                 List<TaskDto> tasksByCollegeId = taskService.findTasksByCollegeId(user.getCollegeId(), 0,page, 5);
-
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        redisPageUtils.addCollegeTaskList(tasksByCollegeId);
-                    }
-                });
-                thread.start();
 
                 return ResultUtils.success(tasksByCollegeId);
             }
             List<TaskDto> collegeTaskByCollegeIdPage = redisPageUtils.getCollegeTaskByCollegeIdPage(page, user.getCollegeId());
-            if (collegeTaskByCollegeIdPage.size()!= RedisPageUtils.PAGE_SIZE){
-                List<TaskDto> tasksByCollegeId = taskService.findTasksByCollegeId(user.getCollegeId(), 0,page, 5);
-                int size = tasksByCollegeId.size();
-                for (int i = collegeTaskByCollegeIdPage.size();i<RedisPageUtils.PAGE_SIZE&&i<size;i++){
 
-                    TaskDto taskDto = tasksByCollegeId.get(i);
 
-                    if (taskDto==null){
-                        break;
-                    }
-                    redisPageUtils.addCollegeTaskByCollegeId(taskDto);
-                }
-                return ResultUtils.success(tasksByCollegeId);
-            }
+
             return ResultUtils.success(collegeTaskByCollegeIdPage);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResultUtils.systemError();
+        }
+    }
+
+    @Override
+    public RestResult studentGetCollegeTaskOrderByPoints(String openId, Integer page) {
+        try {
+            UserDto userDto = userService.findUserDtoByOpenId(openId);
+
+
+            return ResultUtils.success(redisPageUtils.getTaskCollegeOrderByPoint(page,userDto.getCollegeId()));
+
         }catch (Exception e){
             e.printStackTrace();
             return ResultUtils.systemError();
@@ -91,12 +86,12 @@ public class StudentServiceImpl implements StudentService {
             }
 
             if (taskEntity.getNumber()==taskEntity.getNumberLimit()&&taskEntity.getNumberLimit()!=-1){
-                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity.getCollegeId(),taskId);
+                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
                 return ResultUtils.error("已达人数上线");
             }
 
             if (new Date().after(taskEntity.getDeadline())||taskEntity.getStatus()!=0){
-                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity.getCollegeId(),taskId);
+                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
                 return ResultUtils.error("任务已经截至");
             }
             Thread thread = new Thread(new Runnable() {
@@ -141,12 +136,12 @@ public class StudentServiceImpl implements StudentService {
             }
 
             if (taskEntity.getNumber()==taskEntity.getNumberLimit()&&taskEntity.getNumberLimit()!=-1){
-                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity.getCollegeId(),taskId);
+                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
                 return ResultUtils.error("已达人数上线");
             }
 
             if (new Date().after(taskEntity.getDeadline())||taskEntity.getStatus()!=0) {
-                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity.getCollegeId(), taskId);
+                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
                 return ResultUtils.error("任务已经截至");
             }
 

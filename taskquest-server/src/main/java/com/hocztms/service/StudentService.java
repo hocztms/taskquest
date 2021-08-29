@@ -8,6 +8,9 @@ public interface StudentService {
 
     RestResult studentGetCollegeTask(String openId,Integer page);
 
+    RestResult studentGetCollegeTaskOrderByPoints(String openId,Integer page);
+
+
     RestResult studentApplyCollegeTask(Long taskId,String openId);
 
     RestResult studentGrabCollegeTask(Long taskId,String openId);

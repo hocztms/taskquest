@@ -130,8 +130,25 @@ public class TaskServiceImpl implements TaskService {
         if (redisTemplate.getExpire("task::"+ id)<20){
             redisTemplate.expire("task::" + id,30 + new Random().nextInt(20),TimeUnit.MINUTES);
         }
+        TaskEntity taskEntity = (TaskEntity) redisTemplate.opsForValue().get("task::" + id);
 
-        return (TaskEntity) redisTemplate.opsForValue().get("task::" +id);
+        if (taskEntity.getNumber()==taskEntity.getNumberLimit() ||taskEntity.getDeadline().before(new Date()) ){
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
+                }
+            });
+            thread.start();
+        }
+
+
+        return taskEntity;
+    }
+
+    @Override
+    public TaskDto addRedisTaskDtoByDelete(Long taskId,Long collegeId) {
+        return taskMapper.selectRedisTaskDto(taskId,collegeId,new Date());
     }
 
     @Override

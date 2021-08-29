@@ -14,6 +14,8 @@ public interface TaskService {
 
     TaskEntity findTaskByTaskId(Long id);
 
+    TaskDto addRedisTaskDtoByDelete(Long taskId,Long collegeId);
+
     TaskEntity insertTask(TaskEntity taskEntity);
 
     TaskEntity updateTaskById(TaskEntity taskEntity);

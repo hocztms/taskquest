@@ -35,6 +35,14 @@ public class StudentController {
     }
 
 
+    @ApiOperation("获得学院任务清单")
+    @GetMapping("/getCollegeTaskOrderByPoints")
+    public RestResult getCollegeTaskOrderByPoints(int page, HttpServletRequest request){
+        String account = jwtAuthService.getAccountFromToken(request);
+        return studentService.studentGetCollegeTask(account,page);
+    }
+
+
     @ApiOperation("申请任务")
     @PostMapping("/applyTask")
     public RestResult applyTask(@RequestBody Long taskId,HttpServletRequest request){

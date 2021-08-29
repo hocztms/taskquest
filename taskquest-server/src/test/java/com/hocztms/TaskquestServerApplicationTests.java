@@ -105,33 +105,49 @@ class TaskquestServerApplicationTests {
 //        if (redisTemplate.opsForZSet().zCard("taskRecords-100") ==null){
 //            System.out.println("ok");
 //        }
-        Long a = new Long(200);
-        Long b = new Long(200);
-        Thread threadA = new Thread(new Runnable() {
+//        Long a = new Long(200);
+//        Long b = new Long(200);
+//        Thread threadA = new Thread(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                recordsService.findTaskRecordsList(a);
+//            }
+//        });
+//        Thread threadB = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                recordsService.findTaskRecordsList(b);
+//            }
+//        });
+//        threadA.start();
+//        threadB.start();
+//
+//        TaskRecords taskRecordsById = recordsService.findTaskRecordsById(5L);
+//        System.out.println(taskRecordsById);
+//
+//
+//        try {
+//            Thread.sleep(50000);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+        redisTemplate.opsForZSet().add("123","123",0);
+        redisTemplate.opsForZSet().add("123","123",0);
 
-            @Override
-            public void run() {
-                recordsService.findTaskRecordsList(a);
-            }
-        });
-        Thread threadB = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                recordsService.findTaskRecordsList(b);
-            }
-        });
-        threadA.start();
-        threadB.start();
+    }
 
-        TaskRecords taskRecordsById = recordsService.findTaskRecordsById(5L);
-        System.out.println(taskRecordsById);
+    @Test
+    public void test3(){
 
 
-        try {
-            Thread.sleep(50000);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        redisTemplate.opsForValue().set("123",null);
+
+        Boolean aBoolean = redisTemplate.hasKey("123");
+
+        Boolean hasKey =redisTemplate.hasKey("1234");
+
+        System.out.println(aBoolean +" " +  hasKey);
     }
 
 }

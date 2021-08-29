@@ -275,7 +275,11 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
                             userService.updateUserByOpenId(userEntity);
 
                             progress.put("progress", (int) ((i+1)/size*100.0));
-                            Thread.sleep(5000);
+
+//                            progress.put("progress", (int) i);
+//                            Thread.sleep(500);
+                            //为了让进度条体现更可观
+                            Thread.sleep(1000);
                             authMessageService.sendCollegeAdminTaskProgress(username,progress);
                         }
 
@@ -331,12 +335,13 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             }
 
 
+            List<TaskRecords> taskRecords = recordsService.findTaskMemberList(notifyVo.getTaskId());
+
             //开启异步
-            Thread thread = new Thread(new Runnable() {
+            Thread emailThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
 
-                    List<TaskRecords> taskRecords = recordsService.findTaskMemberList(notifyVo.getTaskId());
                     List<Email> emails = new ArrayList<>();
                     for (TaskRecords records:taskRecords){
                         emails.add(new Email(records.getEmail(),"通知","您的任务" + taskEntity.getTaskName() + "有新通知:" + notifyVo.getContent(),new Date(),"null"));
@@ -344,7 +349,17 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
                     rabbitmqService.sendEmailList(emails);
                 }
             });
-            thread.start();
+
+            Thread messageThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (TaskRecords records:taskRecords){
+                        authMessageService.sendUserMessage(records.getOpenId(),MessageUtils.generateNoticeMessage(records.getOpenId(),notifyVo.getContent(),"任务:" +taskEntity.getTaskName() ));
+                    }
+                }
+            });
+            emailThread.start();
+            messageThread.start();
 
 
             return ResultUtils.success();

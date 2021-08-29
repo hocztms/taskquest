@@ -10,6 +10,7 @@ import com.hocztms.vo.EmailVo;
 import com.hocztms.vo.UserAuthVo;
 import com.hocztms.vo.WxUserVo;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface AuthService {
@@ -25,5 +26,7 @@ public interface AuthService {
     RestResult userDoAuth(UserAuthVo authVo, String openId);
 
     RestResult userGetInfo(String openId);
+
+    RestResult userLogout(HttpServletRequest request);
 
 }

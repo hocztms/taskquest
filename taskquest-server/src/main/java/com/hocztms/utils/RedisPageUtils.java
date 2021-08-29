@@ -1,7 +1,6 @@
 package com.hocztms.utils;
 
 import com.hocztms.dto.TaskDto;
-import com.hocztms.entity.TaskEntity;
 import com.hocztms.entity.TaskRecords;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,7 +23,7 @@ public class RedisPageUtils {
     @Autowired
     private RedisTemplate<Object,Object> redisTemplate;
     public void addCollegeTaskByCollegeId(TaskDto taskDto){
-        if (redisTemplate.opsForZSet().zCard(COLLEGE_TASK_PREFIX +taskDto.getCollegeId())==PAGE_SIZE* MAX_PAGE){
+        if (getCollegeTaskSizeByCollegeId(taskDto.getCollegeId())==PAGE_SIZE* MAX_PAGE){
             redisTemplate.opsForZSet().removeRange(COLLEGE_TASK_PREFIX +taskDto.getCollegeId(),0,0);
         }
         redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX +taskDto.getCollegeId(),taskDto,taskDto.getTaskId());
@@ -34,6 +33,24 @@ public class RedisPageUtils {
         Set objects = redisTemplate.opsForZSet().reverseRange(COLLEGE_TASK_PREFIX + collegeId, page * PAGE_SIZE - PAGE_SIZE, page * PAGE_SIZE);
         List<TaskDto> list = new ArrayList<>(objects);
         return list;
+    }
+
+    public Long getCollegeTaskSizeByCollegeId(Long collegeId){
+        return redisTemplate.opsForZSet().zCard(COLLEGE_TASK_PREFIX + collegeId);
+    }
+
+    public void addCollegeTaskList(List<TaskDto> list){
+
+        for (TaskDto dto:list){
+
+            if (getCollegeTaskSizeByCollegeId(dto.getCollegeId())>=PAGE_SIZE *MAX_PAGE){
+                break;
+            }
+
+            if (redisTemplate.opsForZSet().rangeByScore(COLLEGE_TASK_PREFIX + dto.getCollegeId(),dto.getTaskId(),dto.getTaskId()).isEmpty()){
+                redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX + dto.getCollegeId(),dto.getTaskId(),dto.getTaskId());
+            }
+        }
     }
 
     public void updateCollegeTaskByTaskId(TaskDto taskDto){

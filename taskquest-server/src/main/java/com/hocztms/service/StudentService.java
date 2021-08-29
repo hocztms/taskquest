@@ -10,6 +10,8 @@ public interface StudentService {
 
     RestResult studentApplyCollegeTask(Long taskId,String openId);
 
+    RestResult studentGrabCollegeTask(Long taskId,String openId);
+
     RestResult studentGetTaskRecords(String openId,Long page);
 
     RestResult studentDeleteTaskRecords(List<Long> ids , String openId);

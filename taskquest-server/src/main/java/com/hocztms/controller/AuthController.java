@@ -4,6 +4,7 @@ import com.hocztms.commons.RestResult;
 import com.hocztms.jwt.JwtAuthService;
 import com.hocztms.service.impl.RedisService;
 import com.hocztms.service.AuthService;
+import com.hocztms.utils.RedisLockUtil;
 import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.AdminVo;
 import com.hocztms.vo.WxUserVo;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,6 +30,9 @@ public class AuthController {
     private RedisService redisService;
     @Autowired
     private JwtAuthService jwtAuthService;
+
+    @Autowired
+    private RedisLockUtil redisLockUtil;
 
     @ApiOperation("管理员登入接口 超级管理员返回code 2 学院管理员 code 1")
     @PostMapping("/adminLogin")
@@ -54,4 +59,16 @@ public class AuthController {
         return authService.checkUserAuth(account);
     }
 
+    @ApiOperation("登出接口")
+    @PostMapping("/logout")
+    public RestResult logout(HttpServletRequest request){
+
+        return authService.userLogout(request);
+    }
+
+//    @GetMapping("/testLock")
+//    public void testRedisLock(){
+//        Integer i = new Random().nextInt(20);
+//        redisLockUtil.grabTaskLock(11L, new String(i.toString()));
+//    }
 }

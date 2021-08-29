@@ -18,34 +18,33 @@ import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.AdminVo;
 import com.hocztms.vo.UserAuthVo;
 import com.hocztms.vo.WxUserVo;
+import com.hocztms.webSocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthServiceImpl implements AuthService {
     @Autowired
     private JwtAuthService jwtAuthService;
     @Autowired
-    private AdminMapper adminMapper;
-    @Autowired
-    private AdminRoleMapper adminRoleMapper;
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private UserRoleMapper userRoleMapper;
-    @Autowired
-    private JwtTokenUtils tokenUtils;
-    @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private StudentMapper studentMapper;
     @Autowired
     private UserService userService;
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private RedisTemplate<Object,Object> redisTemplate;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
 
     @Override
@@ -149,6 +148,19 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
+    public RestResult userLogout(HttpServletRequest request) {
+        try {
+            String account = jwtAuthService.getAccountFromToken(request);
+            redisTemplate.opsForValue().set(RedisService.jwtPrefix + account,new Date(),60, TimeUnit.MINUTES);
+            webSocketServer.close(account);
+
+            return ResultUtils.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResultUtils.systemError();
+        }
+    }
 
 
 }

@@ -3,6 +3,7 @@ package com.hocztms.controller;
 import com.hocztms.commons.RestResult;
 import com.hocztms.jwt.JwtAuthService;
 import com.hocztms.service.StudentService;
+import com.hocztms.utils.RedisLockUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class StudentController {
     private StudentService studentService;
     @Autowired
     private JwtAuthService jwtAuthService;
+    @Autowired
+    private RedisLockUtil redisLockUtil;
 
 
     @ApiOperation("获得学院任务清单")
@@ -37,6 +40,16 @@ public class StudentController {
     public RestResult applyTask(@RequestBody Long taskId,HttpServletRequest request){
         String account = jwtAuthService.getAccountFromToken(request);
         return studentService.studentApplyCollegeTask(taskId,account);
+    }
+
+    @ApiOperation("抢任务")
+    @PostMapping("/grabTask")
+    public RestResult grabTask(@RequestBody Long taskId,HttpServletRequest request){
+
+
+
+        String account = jwtAuthService.getAccountFromToken(request);
+        return redisLockUtil.grabTaskLock(taskId,account);
     }
 
 

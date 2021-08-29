@@ -16,7 +16,7 @@ public class MessageEntity {
     @TableId(value = "id",type = IdType.AUTO)
     private long id;
     private String openId;
-
+    private String from;
     private String subject;
     private String content;
     private int readTag;

@@ -33,8 +33,17 @@ public class StudentServiceImpl implements StudentService {
             UserDto user = userService.findUserDtoByOpenId(openId);
 
             //大于 缓存最大容量
-            if (page.intValue()>page){
+            if (page.intValue()>(redisPageUtils.getCollegeTaskSizeByCollegeId(user.getCollegeId())/RedisPageUtils.PAGE_SIZE)){
                 List<TaskDto> tasksByCollegeId = taskService.findTasksByCollegeId(user.getCollegeId(), 0,page, 5);
+
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        redisPageUtils.addCollegeTaskList(tasksByCollegeId);
+                    }
+                });
+                thread.start();
+
                 return ResultUtils.success(tasksByCollegeId);
             }
             List<TaskDto> collegeTaskByCollegeIdPage = redisPageUtils.getCollegeTaskByCollegeIdPage(page, user.getCollegeId());
@@ -73,6 +82,9 @@ public class StudentServiceImpl implements StudentService {
                 return ResultUtils.error("无权限");
             }
 
+            if (taskEntity.getType()!=0){
+                return ResultUtils.error("错误方法");
+            }
             TaskRecords records = recordsService.findUserTaskRecords(taskEntity.getTaskId(),userDto.getStudentId());
             if (records!=null){
                 return ResultUtils.error("请勿充重复操作");
@@ -87,25 +99,76 @@ public class StudentServiceImpl implements StudentService {
                 redisPageUtils.deleteCollegeTaskByTaskId(taskEntity.getCollegeId(),taskId);
                 return ResultUtils.error("任务已经截至");
             }
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    TaskRecords taskRecords = new TaskRecords(0,taskId,openId,userDto.getStudentId(),userDto.getStudentName(),userDto.getEmail(),0,taskEntity.getType());
+                    recordsService.insertTaskRecords(taskRecords);
+                    authMessageService.sendCollegeAdminMessage(taskEntity.getPublisher(),"您的任务" + taskEntity.getTaskName() + "有新的审核...");
 
-            if(taskEntity.getType()==0){
-                TaskRecords taskRecords = new TaskRecords(0,taskId,openId,userDto.getStudentId(),userDto.getStudentName(),userDto.getEmail(),0,taskEntity.getType());
-                recordsService.insertTaskRecords(taskRecords);
-            }
-
-            //抢单模式
-            else {
-                taskEntity.setNumber(taskEntity.getNumber() + 1);
+                }
+            });
+            thread.start();
 
 
-                taskService.updateTaskById(taskEntity); // 乐观锁更新失败 会抛出异常
-
-                TaskRecords taskRecords = new TaskRecords(0, taskId, openId, userDto.getStudentId(), userDto.getStudentName(), userDto.getEmail(), 1, taskEntity.getType());
-                recordsService.insertTaskRecords(taskRecords);
-            }
-
-            authMessageService.sendCollegeAdminMessage(taskEntity.getPublisher(),"您的任务" + taskEntity.getTaskName() + "有新的审核...");
             return ResultUtils.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResultUtils.systemError();
+        }
+    }
+
+    @Override
+    public RestResult studentGrabCollegeTask(Long taskId, String openId) {
+        try {
+            UserDto userDto = userService.findUserDtoByOpenId(openId);
+
+            if (userDto.getEmail()==null){
+                return ResultUtils.error("请先绑定邮箱");
+            }
+
+            TaskEntity taskEntity = taskService.findTaskByTaskId(taskId);
+            if (taskEntity.getCollegeId()!=userDto.getCollegeId()){
+                return ResultUtils.error("无权限");
+            }
+
+            if (taskEntity.getType()!=1){
+                return ResultUtils.error("错误方法");
+            }
+            TaskRecords records = recordsService.findUserTaskRecords(taskEntity.getTaskId(),userDto.getStudentId());
+            if (records!=null){
+                return ResultUtils.error("请勿充重复操作");
+            }
+
+            if (taskEntity.getNumber()==taskEntity.getNumberLimit()&&taskEntity.getNumberLimit()!=-1){
+                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity.getCollegeId(),taskId);
+                return ResultUtils.error("已达人数上线");
+            }
+
+            if (new Date().after(taskEntity.getDeadline())||taskEntity.getStatus()!=0) {
+                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity.getCollegeId(), taskId);
+                return ResultUtils.error("任务已经截至");
+            }
+
+
+
+            taskEntity.setNumber(taskEntity.getNumber() + 1);
+            taskService.updateTaskById(taskEntity);
+
+
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    TaskRecords taskRecords = new TaskRecords(0, taskId, openId, userDto.getStudentId(), userDto.getStudentName(), userDto.getEmail(), 1, taskEntity.getType());
+                    recordsService.insertTaskRecords(taskRecords);
+                    authMessageService.sendCollegeAdminMessage(taskEntity.getPublisher(),"您的任务" + taskEntity.getTaskName() + "有新的抢单成功成员...");
+
+                }
+            });
+            thread.start();
+
+
+            return  ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
             return ResultUtils.systemError();

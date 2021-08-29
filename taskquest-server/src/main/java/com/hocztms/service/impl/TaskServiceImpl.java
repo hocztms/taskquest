@@ -105,15 +105,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskEntity findTaskByTaskId(Long id) {
-        TaskEntity task = (TaskEntity) redisTemplate.opsForValue().get("task::" + id);
-
-        if (task == null) {
+        if (!redisTemplate.hasKey("task::" + id)) {
             synchronized (this) {
                 TaskEntity value = (TaskEntity) redisTemplate.opsForValue().get("task::" + id);
 
-                if (value != null) {
+                if (!redisTemplate.hasKey("task::" + id)) {
                     return value;
                 } else {
+
                     log.info("taskId:{} 走数据库。。。。",id);
                     TaskEntity taskEntity = taskMapper.selectById(id);
                     if (taskEntity == null) {
@@ -126,7 +125,13 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
-        return task;
+
+        //自动刷新
+        if (redisTemplate.getExpire("task::"+ id)<20){
+            redisTemplate.expire("task::" + id,30 + new Random().nextInt(20),TimeUnit.MINUTES);
+        }
+
+        return (TaskEntity) redisTemplate.opsForValue().get("task::" +id);
     }
 
     @Override
@@ -155,7 +160,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Cacheable(cacheResolver = "CollegeTaskPageCacheResolver",key = "#page")
     public List<TaskDto> findTasksByCollegeId(Long collegeId,Integer status,Integer page, Integer size) {
-
+        log.info("学院：{} 任务清单走数据库...",collegeId);
         return taskMapper.selectTaskDtoListByCollegeId(collegeId,status,new Page(page,size));
     }
 

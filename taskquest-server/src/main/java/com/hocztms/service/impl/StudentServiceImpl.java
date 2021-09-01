@@ -34,7 +34,7 @@ public class StudentServiceImpl implements StudentService {
 
             //大于 缓存最大容量
             if (page>RedisPageUtils.MAX_PAGE){
-                List<TaskDto> tasksByCollegeId = taskService.findTasksByCollegeId(user.getCollegeId(), 0,page, 5);
+                List<TaskDto> tasksByCollegeId = taskService.findCollegeTasksPageByCollegeId(user.getCollegeId(), page);
 
                 return ResultUtils.success(tasksByCollegeId);
             }
@@ -86,12 +86,10 @@ public class StudentServiceImpl implements StudentService {
             }
 
             if (taskEntity.getNumber()==taskEntity.getNumberLimit()&&taskEntity.getNumberLimit()!=-1){
-                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
                 return ResultUtils.error("已达人数上线");
             }
 
             if (new Date().after(taskEntity.getDeadline())||taskEntity.getStatus()!=0){
-                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
                 return ResultUtils.error("任务已经截至");
             }
             Thread thread = new Thread(new Runnable() {
@@ -136,12 +134,10 @@ public class StudentServiceImpl implements StudentService {
             }
 
             if (taskEntity.getNumber()==taskEntity.getNumberLimit()&&taskEntity.getNumberLimit()!=-1){
-                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
                 return ResultUtils.error("已达人数上线");
             }
 
             if (new Date().after(taskEntity.getDeadline())||taskEntity.getStatus()!=0) {
-                redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
                 return ResultUtils.error("任务已经截至");
             }
 

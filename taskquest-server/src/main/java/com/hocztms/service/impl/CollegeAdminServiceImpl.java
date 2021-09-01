@@ -5,7 +5,9 @@ import com.hocztms.commons.Email;
 import com.hocztms.commons.RestResult;
 import com.hocztms.entity.*;
 import com.hocztms.service.*;
+import com.hocztms.utils.CommonUtils;
 import com.hocztms.utils.MessageUtils;
+import com.hocztms.utils.RedisPageUtils;
 import com.hocztms.utils.ResultUtils;
 import com.hocztms.vo.ClassVo;
 import com.hocztms.vo.NotifyVo;
@@ -34,6 +36,8 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
     private AuthMessageService authMessageService;
     @Autowired
     private RabbitmqService rabbitmqService;
+    @Autowired
+    private RedisPageUtils redisPageUtils;
 
 
     @Override
@@ -130,7 +134,6 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             taskEntity.setNumberLimit(taskVo.getLimit());
             taskEntity.setPoints(taskVo.getPoints());
             taskService.updateTaskById(taskEntity);
-
 
 
             return ResultUtils.success();
@@ -283,7 +286,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
                             authMessageService.sendCollegeAdminTaskProgress(username,progress);
                         }
 
-                        taskEntity.setStatus(0);
+                        taskEntity.setStatus(1);
                         taskService.updateTaskById(taskEntity);
 
                     }catch (Exception e){

@@ -1,6 +1,7 @@
 package com.hocztms.controller;
 
 import com.hocztms.commons.RestResult;
+import com.hocztms.config.aop.OperaLog;
 import com.hocztms.jwt.JwtAuthService;
 import com.hocztms.service.StudentService;
 import com.hocztms.utils.RedisLockUtil;
@@ -29,17 +30,18 @@ public class StudentController {
 
     @ApiOperation("获得学院任务清单")
     @GetMapping("/getCollegeTask")
+    @OperaLog(operaName = "获得学院任务清单",operaModule = "student")
     public RestResult getCollegeTask(int page, HttpServletRequest request){
         String account = jwtAuthService.getAccountFromToken(request);
         return studentService.studentGetCollegeTask(account,page);
     }
 
 
-    @ApiOperation("获得学院任务清单")
+    @ApiOperation("获得学院任务清单 points 测试")
     @GetMapping("/getCollegeTaskOrderByPoints")
     public RestResult getCollegeTaskOrderByPoints(int page, HttpServletRequest request){
         String account = jwtAuthService.getAccountFromToken(request);
-        return studentService.studentGetCollegeTask(account,page);
+        return studentService.studentGetCollegeTaskOrderByPoints(account,page);
     }
 
 

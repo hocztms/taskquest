@@ -9,10 +9,12 @@ import com.hocztms.entity.TaskEntity;
 import com.hocztms.entity.TaskRecords;
 import com.hocztms.mapper.TaskMapper;
 import com.hocztms.mapper.user.UserMapper;
+import com.hocztms.mqvo.OperaLogs;
 import com.hocztms.service.TaskRecordsService;
 import com.hocztms.service.TaskService;
 import com.hocztms.service.UserService;
 import com.hocztms.service.impl.RabbitmqService;
+import com.hocztms.utils.CommonUtils;
 import com.hocztms.utils.RedisPageUtils;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -140,14 +142,16 @@ class TaskquestServerApplicationTests {
     @Test
     public void test3(){
 
-
-        redisTemplate.opsForValue().set("123",null);
-
-        Boolean aBoolean = redisTemplate.hasKey("123");
-
-        Boolean hasKey =redisTemplate.hasKey("1234");
-
-        System.out.println(aBoolean +" " +  hasKey);
+        rabbitmqService.insertOperaLog(new OperaLogs("123","123","123","123","123","212","123","123",new Date()));
+//        \private String operaModule;
+//        private String operaName;
+//        private String account;
+//        private String authorities;
+//        private String uri;
+//        private String ip;
+//        private String reqParam;
+//        private String resParam;
+//        private Date operaDate;
     }
 
 }

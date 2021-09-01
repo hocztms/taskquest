@@ -14,13 +14,11 @@ public interface TaskService {
 
     TaskEntity findTaskByTaskId(Long id);
 
-    TaskDto addRedisTaskDtoByDelete(Long taskId,Long collegeId);
-
     TaskEntity insertTask(TaskEntity taskEntity);
 
     TaskEntity updateTaskById(TaskEntity taskEntity);
 
-    List<TaskDto> findTasksByCollegeId(Long collegeId, Integer status,Integer page, Integer size);
+    List<TaskDto> findCollegeTasksPageByCollegeId(Long collegeId,Integer page);
 
     List<TaskDto> findTaskHotPointList(Long collegeId);
 

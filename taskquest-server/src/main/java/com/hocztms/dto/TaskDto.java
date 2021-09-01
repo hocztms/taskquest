@@ -21,6 +21,7 @@ public class TaskDto {
     private String taskContent;
     private Integer type; //0代表抢单模式 1代表审核模式
     private Integer number;
+    private Integer numberLimit;
     private Double points;
-    private Integer status;
+    private Date deadline;
 }

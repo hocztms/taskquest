@@ -15,24 +15,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
-    /*
-     * 用于绑定到直连交换机的队列
-     */
     public static final String EMAIL_DIRECT_QUEUE = "emailQueue";
 
-    /**
-     * 声明直连交换机
-     */
+
+    public static final String LOG_DIRECT_QUEUE = "logQueue";
+
     public static final String DIRECT_EXCHANGE = "directExchange";
 
-    /**
-     * 声明关于直连交换机TEST_DIRECT_EXCHANGE的routing-key :
-     */
+
     public static final String EMAIL_DIRECT_ROUTING = "emailRouting";
 
-    /**
-     * 声明直连交换机 这个交换机不绑定任何队列
-     */
+    public static final String LOG_DIRECT_ROUTING = "logRouting";
+
+    //测试
     public static final String TEST_DIRECT_EXCHANGE_NO_HAVE__QUEUE = "LonelyExchange";
 
 
@@ -68,33 +63,34 @@ public class RabbitMqConfig {
         return rabbitTemplate;
     }
     @Bean
-    public Queue testDirectQueue() {
-        //true 是否持久
+    public Queue emailDirectQueue() {
         return new Queue(EMAIL_DIRECT_QUEUE,true);
     }
 
-    /**
-     * Direct交换机 起名：TestDirectExchange  直连交换机,需要双方遵守routingKey
-     * @return
-     */
+    @Bean
+    public Queue logDirectQueue(){
+        log.info("执行力，sdldajkshdkashkdhaskj");
+        return new Queue(LOG_DIRECT_QUEUE,true);
+    }
+
+
     @Bean
     DirectExchange directExchange() {
         return new DirectExchange(DIRECT_EXCHANGE);
     }
 
-    /**
-     * 绑定  将队列和交换机绑定, 并设置用于匹配键：TestDirectRouting
-     * @return
-     */
+
     @Bean
-    Binding bindingDirect() {
-        return BindingBuilder.bind(testDirectQueue()).to(directExchange()).with(EMAIL_DIRECT_ROUTING);
+    Binding bindingEmailDirect() {
+        return BindingBuilder.bind(emailDirectQueue()).to(directExchange()).with(EMAIL_DIRECT_ROUTING);
     }
 
-    /**
-     * Direct交换机 起名：LonelyDirectExchange  模拟生产者发送消息时找不到交换机的情形
-     * @return
-     */
+    @Bean
+    Binding bindingLogDirect() {
+        return BindingBuilder.bind(logDirectQueue()).to(directExchange()).with(LOG_DIRECT_ROUTING);
+    }
+
+
     @Bean
     DirectExchange testExchangeNoQueueExit() {
         return new DirectExchange(TEST_DIRECT_EXCHANGE_NO_HAVE__QUEUE);

@@ -1,4 +1,4 @@
-package com.hocztms.config;
+package com.hocztms.config.aop;
 
 import com.hocztms.jwt.JwtTokenUtils;
 import lombok.extern.slf4j.Slf4j;

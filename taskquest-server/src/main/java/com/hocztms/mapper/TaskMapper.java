@@ -23,8 +23,8 @@ public interface TaskMapper extends BaseMapper<TaskEntity> {
     TaskDto selectRedisTaskDto(@Param("taskId") Long taskId,@Param("collegeId") Long collegeId,@Param("deadline")Date deadline);
 
 
-    @Select("select * from tb_task where college_id = #{collegeId} and status = #{status} order by task_id desc")
-    List<TaskDto> selectTaskDtoListByCollegeId(@Param("collegeId") Long collegeId,@Param("status") Integer status,IPage page);
+    @Select("select * from tb_task where college_id = #{collegeId} and status = #{status} and deadline > #{deadline}order by points desc,task_id desc")
+    List<TaskDto> selectTaskDtoListByCollegeId(@Param("collegeId") Long collegeId,@Param("status") Integer status,@Param("deadline") Date deadline, IPage page);
 
     @Select("select * from tb_task where college_id = #{collegeId} and deadline > #{deadline} and status = 0")
     List<TaskDto> selectTaskHotPointList(@Param("collegeId") Long collegeId, @Param("deadline")Date date, IPage page);

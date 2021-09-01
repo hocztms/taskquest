@@ -13,6 +13,7 @@ spring:
     publisher-returns: true
     publisher-confirm-type: correlated
 
+
   cache:
     type: redis
   redis:

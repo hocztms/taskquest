@@ -14,71 +14,85 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisPageUtils {
 
-    public static final String COLLEGE_TASK_PREFIX = "collegeTask-";
+    public static final String COLLEGE_TASK_Id_PREFIX = "collegeTask-";
     public static final String TASK_RECORDS_PREFIX = "taskRecords-";
     public static final int PAGE_SIZE = 5;
     public static final int MAX_PAGE = 10;
 
+
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Autowired
     private RedisTemplate<Object,Object> redisTemplate;
-    public void addCollegeTaskByCollegeId(TaskDto taskDto){
-        if (getCollegeTaskSizeByCollegeId(taskDto.getCollegeId())==PAGE_SIZE* MAX_PAGE){
-            redisTemplate.opsForZSet().removeRange(COLLEGE_TASK_PREFIX +taskDto.getCollegeId(),0,0);
+    public void addCollegeTaskByCollegeId(TaskEntity taskEntity){
+        if (getCollegeTaskSizeByCollegeId(taskEntity.getCollegeId())!=PAGE_SIZE*MAX_PAGE){
+            redisTemplate.opsForZSet().add(COLLEGE_TASK_Id_PREFIX +taskEntity.getCollegeId(),taskEntity.getTaskId(),taskEntity.getPoints());
+            return;
         }
-        redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX +taskDto.getCollegeId(),taskDto,taskDto.getTaskId());
+
+        Set range = redisTemplate.opsForZSet().reverseRangeWithScores(COLLEGE_TASK_Id_PREFIX + taskEntity.getCollegeId(), 0, 0);
+        List<Long> dtoList = redisUtils.parseToLongList(range);
+
+        if (!dtoList.isEmpty()){
+            if (redisTemplate.opsForZSet().score(COLLEGE_TASK_Id_PREFIX + taskEntity.getCollegeId(),dtoList.get(0))>taskEntity.getPoints()){
+                return;
+            }
+            redisTemplate.opsForZSet().remove(COLLEGE_TASK_Id_PREFIX + taskEntity.getCollegeId(),dtoList.get(0));
+        }
+        redisTemplate.opsForZSet().add(COLLEGE_TASK_Id_PREFIX +taskEntity.getCollegeId(),taskEntity.getTaskId(),taskEntity.getPoints());
     }
 
     public List<TaskDto> getCollegeTaskByCollegeIdPage(Integer page, Long collegeId){
-        Set objects = redisTemplate.opsForZSet().reverseRange(COLLEGE_TASK_PREFIX + collegeId, page * PAGE_SIZE - PAGE_SIZE, page * PAGE_SIZE);
-        List<TaskDto> list = new ArrayList<>(objects);
-        return list;
+        Set objects = redisTemplate.opsForZSet().reverseRange(COLLEGE_TASK_Id_PREFIX + collegeId, page * PAGE_SIZE - PAGE_SIZE, page * PAGE_SIZE);
+        List<Long> longList = redisUtils.parseToLongList(objects);
+        List<TaskDto> dtos = new ArrayList<>();
+        for (Long id:longList){
+            TaskEntity task = taskService.findTaskByTaskId(id);
+            dtos.add(CommonUtils.TaskEntityParseTaskDto(task));
+        }
+        return dtos;
     }
 
     public Long getCollegeTaskSizeByCollegeId(Long collegeId){
-        return redisTemplate.opsForZSet().zCard(COLLEGE_TASK_PREFIX + collegeId);
+        return redisTemplate.opsForZSet().zCard(COLLEGE_TASK_Id_PREFIX + collegeId);
     }
 
-
-    public void updateCollegeTaskByTaskId(TaskDto taskDto){
-        synchronized (this){
-            TaskDto task = findCollegeTaskByScore(taskDto.getCollegeId(),taskDto.getTaskId());
-            if (task==null){
-                return;
-            }
-            redisTemplate.opsForZSet().remove(COLLEGE_TASK_PREFIX+taskDto.getCollegeId(),task);
-            redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX + taskDto.getCollegeId(),taskDto,task.getTaskId());
-        }
-    }
 
     public void deleteCollegeTaskByTaskId(TaskEntity taskEntity){
-        TaskDto task = findCollegeTaskByScore(taskEntity.getCollegeId(),taskEntity.getTaskId());
-
-        if (task==null){
+        if (redisTemplate.opsForZSet().score(COLLEGE_TASK_Id_PREFIX + taskEntity.getCollegeId(), taskEntity.getTaskId())==null){
             return;
         }
-        redisTemplate.opsForZSet().remove(COLLEGE_TASK_PREFIX+task.getCollegeId(),task);
+        redisTemplate.opsForZSet().remove(COLLEGE_TASK_Id_PREFIX +taskEntity.getCollegeId(),taskEntity.getTaskId());
 
         //添加
-        Set objects = redisTemplate.opsForZSet().rangeByScore(COLLEGE_TASK_PREFIX + taskEntity.getCollegeId(), 0, 0);
-        List<TaskDto> list = new ArrayList<>(objects);
-        TaskDto taskDto = list.get(0);
-        TaskDto dto = taskService.addRedisTaskDtoByDelete(taskDto.getTaskId(), taskDto.getCollegeId());
-        if (dto!=null){
-            redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX + taskEntity.getCollegeId(),task,task.getTaskId());
+        int page = (int) (getCollegeTaskSizeByCollegeId(taskEntity.getCollegeId())/PAGE_SIZE +1);
+
+        List<TaskDto> dtos= taskService.findCollegeTasksPageByCollegeId(taskEntity.getCollegeId(),page);
+        for (TaskDto dto:dtos){
+            if (getCollegeTaskSizeByCollegeId(dto.getCollegeId())==PAGE_SIZE*MAX_PAGE){
+                break;
+            }
+
+            if (redisTemplate.opsForZSet().score(COLLEGE_TASK_Id_PREFIX + dto.getCollegeId(), dto.getTaskId())!=null){
+                continue;
+            }
+
+
+            redisTemplate.opsForZSet().add(COLLEGE_TASK_Id_PREFIX + dto.getCollegeId(),dto.getTaskId(),dto.getPoints());
+        }
+    }
+    public void preHeatCollegeTask(List<TaskDto> taskEntities,Long collegeId){
+        redisTemplate.delete(COLLEGE_TASK_Id_PREFIX +collegeId);
+
+        for (TaskDto taskDto:taskEntities){
+            redisTemplate.opsForZSet().add(COLLEGE_TASK_Id_PREFIX + collegeId,taskDto.getTaskId(),taskDto.getPoints());
         }
     }
 
-    public TaskDto findCollegeTaskByScore(Long collegeId,Long score){
-        Set objects = redisTemplate.opsForZSet().rangeByScore(COLLEGE_TASK_PREFIX + collegeId, score, score);
-        List<TaskDto> list = new ArrayList<>(objects);
-        if (list.isEmpty()){
-            return null;
-        }
-        return list.get(0);
-    }
+
 
     public void addTaskRecordsList(List<TaskRecords> taskRecords,Long taskId){
         if (taskRecords.isEmpty()){
@@ -111,19 +125,11 @@ public class RedisPageUtils {
         redisTemplate.opsForZSet().remove(TASK_RECORDS_PREFIX + records.getTaskId(),records);
     }
 
-    public void preHeatCollegeTask(List<TaskDto> taskEntities,Long collegeId){
-        redisTemplate.delete(COLLEGE_TASK_PREFIX +collegeId);
-
-        for (TaskDto taskDto:taskEntities){
-            redisTemplate.opsForZSet().add(COLLEGE_TASK_PREFIX + collegeId,taskDto,taskDto.getTaskId());
-        }
-    }
 
     public void deleteTaskRecords(TaskRecords records){
         if (taskRecordsIsEmpty(records.getTaskId())){
             return;
         }
-
         redisTemplate.opsForZSet().remove(TASK_RECORDS_PREFIX + records.getTaskId(),records);
     }
 
@@ -152,7 +158,7 @@ public class RedisPageUtils {
 
     public List<TaskDto> getTaskCollegeOrderByPoint(Integer page,Long collegeId){
         //数据量较小
-        Set objects = redisTemplate.opsForZSet().range(COLLEGE_TASK_PREFIX + collegeId,0,-1);
+        Set objects = redisTemplate.opsForZSet().range(COLLEGE_TASK_Id_PREFIX + collegeId,0,-1);
         List<TaskDto> list = new ArrayList<>(objects);
         list.sort(new Comparator<TaskDto>() {
             @Override
@@ -163,4 +169,5 @@ public class RedisPageUtils {
 
         return list.subList(page * PAGE_SIZE - PAGE_SIZE-1, page * PAGE_SIZE-1);
     }
+
 }

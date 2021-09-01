@@ -109,17 +109,16 @@ public class TaskServiceImpl implements TaskService {
             synchronized (this) {
                 TaskEntity value = (TaskEntity) redisTemplate.opsForValue().get("task::" + id);
 
-                if (!redisTemplate.hasKey("task::" + id)) {
+                if (value!=null) {
                     return value;
                 } else {
-
                     log.info("taskId:{} 走数据库。。。。",id);
                     TaskEntity taskEntity = taskMapper.selectById(id);
                     if (taskEntity == null) {
                         redisTemplate.opsForValue().set("task::" + id, null, 5, TimeUnit.MINUTES);
                     } else {
                         Random random = new Random();
-                        redisTemplate.opsForValue().set("task::" + id, taskEntity, 30 + random.nextInt(20), TimeUnit.MINUTES);
+                        redisTemplate.opsForValue().set("task::" + id, taskEntity, 180 + random.nextInt(30), TimeUnit.MINUTES);
                     }
                     return taskEntity;
                 }
@@ -128,11 +127,11 @@ public class TaskServiceImpl implements TaskService {
 
         //自动刷新
         if (redisTemplate.getExpire("task::"+ id)<20){
-            redisTemplate.expire("task::" + id,30 + new Random().nextInt(20),TimeUnit.MINUTES);
+            redisTemplate.expire("task::" + id,180 + new Random().nextInt(30),TimeUnit.MINUTES);
         }
         TaskEntity taskEntity = (TaskEntity) redisTemplate.opsForValue().get("task::" + id);
 
-        if (taskEntity.getNumber()==taskEntity.getNumberLimit() ||taskEntity.getDeadline().before(new Date()) ){
+        if (taskEntity.getNumber()==taskEntity.getNumberLimit() ||taskEntity.getDeadline().before(new Date())||taskEntity.getStatus()==1 ){
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -147,17 +146,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto addRedisTaskDtoByDelete(Long taskId,Long collegeId) {
-        return taskMapper.selectRedisTaskDto(taskId,collegeId,new Date());
-    }
-
-    @Override
     @CacheEvict(allEntries = true,cacheResolver = "CollegeTaskPageCacheResolver")
     public TaskEntity insertTask(TaskEntity taskEntity) {
         int insert = taskMapper.insert(taskEntity);
-        redisPageUtils.addCollegeTaskByCollegeId(new TaskDto(taskEntity.getTaskId(),taskEntity.getCollegeId(),taskEntity.getTaskName(),taskEntity.getTaskContent(),taskEntity.getType(),taskEntity.getNumber(),taskEntity.getPoints(),taskEntity.getStatus()));
+        redisPageUtils.addCollegeTaskByCollegeId(taskEntity);
 
-        redisTemplate.opsForValue().set("task::"+taskEntity.getTaskId(),taskEntity,30 + new Random().nextInt(20),TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set("task::"+taskEntity.getTaskId(),taskEntity,180 + new Random().nextInt(30),TimeUnit.MINUTES);
         return taskEntity;
     }
 
@@ -168,17 +162,27 @@ public class TaskServiceImpl implements TaskService {
         if (i==0){
             throw new RuntimeException("更新失败");
         }
-        redisPageUtils.updateCollegeTaskByTaskId(new TaskDto(taskEntity.getTaskId(),taskEntity.getCollegeId(),taskEntity.getTaskName(),taskEntity.getTaskContent(),taskEntity.getType(),taskEntity.getNumber(),taskEntity.getPoints(),taskEntity.getStatus()));
-        redisTemplate.opsForValue().set("task::"+taskEntity.getTaskId(),taskEntity,30 + new Random().nextInt(20),TimeUnit.MINUTES);
+
+        if (taskEntity.getNumber()==taskEntity.getNumberLimit() ||taskEntity.getDeadline().before(new Date())||taskEntity.getStatus()==1 ){
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    redisPageUtils.deleteCollegeTaskByTaskId(taskEntity);
+                }
+            });
+            thread.start();
+        }
+
+        redisTemplate.opsForValue().set("task::"+taskEntity.getTaskId(),taskEntity,180 + new Random().nextInt(30),TimeUnit.MINUTES);
         return taskEntity;
     }
 
 
     @Override
     @Cacheable(cacheResolver = "CollegeTaskPageCacheResolver",key = "#page")
-    public List<TaskDto> findTasksByCollegeId(Long collegeId,Integer status,Integer page, Integer size) {
+    public List<TaskDto> findCollegeTasksPageByCollegeId(Long collegeId, Integer page) {
         log.info("学院：{} 任务清单走数据库...",collegeId);
-        return taskMapper.selectTaskDtoListByCollegeId(collegeId,status,new Page(page,size));
+        return taskMapper.selectTaskDtoListByCollegeId(collegeId,0,new Date(),new Page(page,RedisPageUtils.PAGE_SIZE));
     }
 
     @Override

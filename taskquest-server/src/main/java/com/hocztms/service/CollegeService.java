@@ -11,6 +11,8 @@ public interface CollegeService {
 
     List<CollegeEntity> findCollegeByPage(Long page);
 
+    List<CollegeEntity> findCollegeList();
+
     CollegeEntity updateCollegeById(CollegeEntity collegeEntity);
 
     void deleteCollegeById(Long collegeId);

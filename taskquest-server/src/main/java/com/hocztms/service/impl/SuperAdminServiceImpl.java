@@ -30,7 +30,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -42,7 +42,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -53,7 +53,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
             return ResultUtils.success(collegeService.findCollegeByPage(page));
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -72,7 +72,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
         }catch (Exception e){
 
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -85,7 +85,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -98,7 +98,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 

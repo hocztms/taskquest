@@ -42,7 +42,7 @@ public class RedisLockUtil {
                 return studentService.studentGrabCollegeTask(taskId,openId);
             }catch (Exception e){
                 e.printStackTrace();
-                return ResultUtils.systemError();
+                return ResultUtils.systemError(e);
             }finally {
                 rLock.unlock();
             }

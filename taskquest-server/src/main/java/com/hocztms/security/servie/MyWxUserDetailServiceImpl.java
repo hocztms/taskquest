@@ -1,5 +1,6 @@
 package com.hocztms.security.servie;
 
+import com.hocztms.dto.UserDto;
 import com.hocztms.entity.UserEntity;
 import com.hocztms.entity.UserRoleEntity;
 import com.hocztms.security.entity.MyUserDetails;
@@ -44,6 +45,7 @@ public class MyWxUserDetailServiceImpl implements UserDetailsService {
             userService.insertUser(new UserEntity(openId,null,null,null,0,0,0));
         }
 
+        UserDto dto = userService.findUserDtoByOpenId(openId);
         List<UserRoleEntity> userRoleEntities = userService.findUserRolesByOpenId(openId);
 
         List<GrantedAuthority> authoritys = new ArrayList<>();
@@ -52,7 +54,7 @@ public class MyWxUserDetailServiceImpl implements UserDetailsService {
             authoritys.add(new SimpleGrantedAuthority(userRoleEntity.getRole()));
         }
 
-        return new MyUserDetails(openId,"vxLogin",authoritys);
+        return new MyUserDetails(openId,"vxLogin",dto.getCollegeId(),authoritys);
 
     }
 }

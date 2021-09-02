@@ -78,7 +78,7 @@ public class TaskServiceImpl implements TaskService {
             return ResultUtils.success(taskByTaskId);
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -99,7 +99,7 @@ public class TaskServiceImpl implements TaskService {
             return ResultUtils.success(taskMapper.selectTaskDtoByKeyWord(keyword,collegeId));
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 

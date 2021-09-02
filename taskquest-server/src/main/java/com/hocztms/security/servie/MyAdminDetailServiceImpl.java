@@ -36,6 +36,6 @@ public class MyAdminDetailServiceImpl implements UserDetailsService {
             authoritys.add(simpleGrantedAuthority);
         }
 
-        return new MyUserDetails(adminEntity.getUsername(), adminEntity.getPassword(),authoritys);
+        return new MyUserDetails(adminEntity.getUsername(), adminEntity.getPassword(),adminEntity.getCollegeId(),authoritys);
     }
 }

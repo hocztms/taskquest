@@ -18,14 +18,18 @@ public class RabbitMqConfig {
     public static final String EMAIL_DIRECT_QUEUE = "emailQueue";
 
 
-    public static final String LOG_DIRECT_QUEUE = "logQueue";
+    public static final String OPERA_LOG_DIRECT_QUEUE = "operaLogQueue";
+
+    public static final String EXCEPT_LOG_DIRECT_QUEUE = "exceptLogQueue";
 
     public static final String DIRECT_EXCHANGE = "directExchange";
 
 
     public static final String EMAIL_DIRECT_ROUTING = "emailRouting";
 
-    public static final String LOG_DIRECT_ROUTING = "logRouting";
+    public static final String OPERA_LOG_DIRECT_ROUTING = "operaLogRouting";
+
+    public static final String EXCEPT_LOG_DIRECT_ROUTING = "exceptLogRouting";
 
     //测试
     public static final String TEST_DIRECT_EXCHANGE_NO_HAVE__QUEUE = "LonelyExchange";
@@ -68,10 +72,15 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public Queue logDirectQueue(){
-        log.info("执行力，sdldajkshdkashkdhaskj");
-        return new Queue(LOG_DIRECT_QUEUE,true);
+    public Queue operaLogDirectQueue(){
+        return new Queue(OPERA_LOG_DIRECT_QUEUE,true);
     }
+
+    @Bean
+    public Queue exceptLogDirectQueue(){
+        return new Queue(EXCEPT_LOG_DIRECT_QUEUE,true);
+    }
+
 
 
     @Bean
@@ -86,8 +95,13 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    Binding bindingLogDirect() {
-        return BindingBuilder.bind(logDirectQueue()).to(directExchange()).with(LOG_DIRECT_ROUTING);
+    Binding bindingOperaLogDirect() {
+        return BindingBuilder.bind(operaLogDirectQueue()).to(directExchange()).with(OPERA_LOG_DIRECT_ROUTING);
+    }
+
+    @Bean
+    Binding bindingExceptLogDirect() {
+        return BindingBuilder.bind(exceptLogDirectQueue()).to(directExchange()).with(EXCEPT_LOG_DIRECT_ROUTING);
     }
 
 

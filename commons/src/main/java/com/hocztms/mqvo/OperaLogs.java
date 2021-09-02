@@ -14,6 +14,7 @@ public class OperaLogs {
     private String operaName;
     private String account;
     private String authorities;
+    private Long collegeId;
     private String uri;
     private String ip;
     private String reqParam;

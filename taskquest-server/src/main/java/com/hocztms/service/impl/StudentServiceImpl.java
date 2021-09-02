@@ -44,8 +44,7 @@ public class StudentServiceImpl implements StudentService {
 
             return ResultUtils.success(collegeTaskByCollegeIdPage);
         }catch (Exception e){
-            e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -59,7 +58,7 @@ public class StudentServiceImpl implements StudentService {
 
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -107,7 +106,7 @@ public class StudentServiceImpl implements StudentService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -162,7 +161,7 @@ public class StudentServiceImpl implements StudentService {
             return  ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -173,7 +172,7 @@ public class StudentServiceImpl implements StudentService {
             return ResultUtils.success(taskRecords);
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -197,7 +196,7 @@ public class StudentServiceImpl implements StudentService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 }

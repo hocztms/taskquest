@@ -17,6 +17,7 @@ public class MyUserDetails implements UserDetails {
 
     private String username;
     private String password;
+    private Long collegeId;
     private List<GrantedAuthority> authorities;
 
     @Override

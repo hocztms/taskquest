@@ -48,7 +48,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -68,7 +68,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -94,7 +94,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -107,7 +107,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -139,7 +139,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -159,7 +159,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success(records);
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -179,7 +179,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success(records);
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -209,7 +209,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -242,7 +242,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -301,7 +301,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success("任务完成中 请等待");
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -324,7 +324,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -368,7 +368,7 @@ public class CollegeAdminServiceImpl implements CollegeAdminService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 

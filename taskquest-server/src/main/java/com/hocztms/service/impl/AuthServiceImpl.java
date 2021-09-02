@@ -78,7 +78,7 @@ public class AuthServiceImpl implements AuthService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -95,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
             return ResultUtils.success();
         } catch (Exception e) {
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -132,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
             return ResultUtils.success();
         } catch (Exception e) {
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -144,7 +144,7 @@ public class AuthServiceImpl implements AuthService {
             return ResultUtils.success(userDto);
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -158,7 +158,7 @@ public class AuthServiceImpl implements AuthService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 

@@ -37,7 +37,6 @@ public class AuthController {
     @ApiOperation("管理员登入接口 超级管理员返回code 2 学院管理员 code 1")
     @PostMapping("/adminLogin")
     public RestResult adminLogin(@RequestBody @Validated AdminVo adminVo){
-
         if(!redisService.checkUserLoginLimit(adminVo.getUsername())){
             return ResultUtils.error("登入失败过多稍后再试");
         }

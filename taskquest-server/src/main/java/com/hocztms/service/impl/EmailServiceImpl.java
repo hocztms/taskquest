@@ -48,7 +48,7 @@ public class EmailServiceImpl implements EmailService {
            return ResultUtils.success();
        }catch (Exception e){
            e.printStackTrace();
-           return ResultUtils.systemError();
+           return ResultUtils.systemError(e);
        }
     }
 }

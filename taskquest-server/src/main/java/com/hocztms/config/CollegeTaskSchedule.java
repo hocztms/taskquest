@@ -19,6 +19,7 @@ import org.springframework.security.core.parameters.P;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 
 @Configuration
@@ -48,18 +49,33 @@ public class CollegeTaskSchedule {
         }
         log.info("准备开始执行学院任务刷新。。。。当前时间为:{}",new Date());
 
+
         redisIpUtils.lockUri("/user/getCollegeId");
-        Long i = 1L;
-        List<CollegeEntity> collegeEntities = collegeService.findCollegeByPage(i);
-        while (!collegeEntities.isEmpty()){
-            for (CollegeEntity collegeEntity:collegeEntities){
-                List<TaskDto> taskHotPointList = taskService.findTaskHotPointList(collegeEntity.getId());
-                redisPageUtils.preHeatCollegeTask(taskHotPointList,collegeEntity.getId());
-            }
 
-            collegeEntities = collegeService.findCollegeByPage(i++);
+        redisPageUtils.cleanUpCollegeTask();
+
+        List<CollegeEntity> collegeEntities = collegeService.findCollegeList();
+
+        //保证线程全部执行完解锁
+        CountDownLatch countDownLatch = new CountDownLatch(collegeEntities.size());
+
+        for (CollegeEntity collegeEntity:collegeEntities){
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        List<TaskDto> taskHotPointList = taskService.findTaskHotPointList(collegeEntity.getId());
+                        redisPageUtils.preHeatCollegeTask(taskHotPointList,collegeEntity.getId());
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }finally {
+                        log.info("学院: {} 任务刷新完毕",collegeEntity.getCollegeName());
+                        countDownLatch.countDown();
+                    }
+                }
+            });
+            thread.start();
         }
-
         redisIpUtils.unLockUri("/user/getCollegeId");
 
         log.info("学院任务刷新结束....当前时间为:{}",new Date());

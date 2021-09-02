@@ -30,7 +30,7 @@ public class AuthMessageServiceImpl implements AuthMessageService {
 
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -53,7 +53,7 @@ public class AuthMessageServiceImpl implements AuthMessageService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 
@@ -80,7 +80,7 @@ public class AuthMessageServiceImpl implements AuthMessageService {
             return ResultUtils.success();
         }catch (Exception e){
             e.printStackTrace();
-            return ResultUtils.systemError();
+            return ResultUtils.systemError(e);
         }
     }
 

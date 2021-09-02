@@ -29,17 +29,22 @@ public class RedisCachePreheatBean implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         //清空缓存
-        Set<Object> keys = redisTemplate.keys("*");
-        redisTemplate.delete(keys);
-
+        redisPageUtils.cleanUpCollegeTask();
 
         //初始化 各学院热点数据
         Long i = 1L;
         List<CollegeEntity> collegeEntities = collegeService.findCollegeByPage(i);
         while (!collegeEntities.isEmpty()){
             for (CollegeEntity collegeEntity:collegeEntities){
-                List<TaskDto> taskHotPointList = taskService.findTaskHotPointList(collegeEntity.getId());
-                redisPageUtils.preHeatCollegeTask(taskHotPointList,collegeEntity.getId());
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<TaskDto> taskHotPointList = taskService.findTaskHotPointList(collegeEntity.getId());
+                        redisPageUtils.preHeatCollegeTask(taskHotPointList,collegeEntity.getId());
+                    }
+                });
+
+                thread.start();
             }
 
             collegeEntities = collegeService.findCollegeByPage(i++);

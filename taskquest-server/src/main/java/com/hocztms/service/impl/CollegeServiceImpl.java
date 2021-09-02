@@ -35,6 +35,12 @@ public class CollegeServiceImpl implements CollegeService {
         return collegeMapper.selectPage(new Page<>(page, RedisPageUtils.PAGE_SIZE),wrapper).getRecords();
     }
 
+    @Override
+    public List<CollegeEntity> findCollegeList() {
+        QueryWrapper<CollegeEntity> wrapper = new QueryWrapper<>();
+        return collegeMapper.selectList(wrapper);
+    }
+
 
     @Override
     @CacheEvict(value = "college",allEntries = true)

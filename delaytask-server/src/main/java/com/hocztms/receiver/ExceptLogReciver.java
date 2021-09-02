@@ -1,12 +1,11 @@
 package com.hocztms.receiver;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.hocztms.commons.Email;
+import com.hocztms.entity.ExceptLogEntity;
 import com.hocztms.entity.OperaLogEntity;
+import com.hocztms.mqvo.ExceptLogs;
 import com.hocztms.mqvo.OperaLogs;
 import com.hocztms.service.LogService;
-import com.hocztms.utils.EmailUtil;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -15,12 +14,9 @@ import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
-
 @Slf4j
 @Component
-public class LogReceiver implements ChannelAwareMessageListener {
+public class ExceptLogReciver implements ChannelAwareMessageListener {
 
 
     @Autowired
@@ -28,25 +24,25 @@ public class LogReceiver implements ChannelAwareMessageListener {
 
 
     @Override
-    @RabbitListener(queues = "logQueue")
+    @RabbitListener(queues = "exceptLogQueue")
     public void onMessage(Message message, Channel channel) throws Exception {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
         try {
-            OperaLogs operaLogs = JSONObject.parseObject(new String(message.getBody()),OperaLogs.class);
-            OperaLogEntity operaLogEntity = new OperaLogEntity();
-            operaLogEntity.setLogId(0L);
-            operaLogEntity.setOperaModule(operaLogs.getOperaModule());
-            operaLogEntity.setOperaName(operaLogs.getOperaName());
-            operaLogEntity.setAccount(operaLogs.getAccount());
-            operaLogEntity.setAuthorities(operaLogs.getAuthorities());
-            operaLogEntity.setUri(operaLogs.getUri());
-            operaLogEntity.setIp(operaLogs.getIp());
-            operaLogEntity.setReqParam(operaLogs.getReqParam());
-            operaLogEntity.setResParam(operaLogs.getResParam());
-            operaLogEntity.setOperaDate(operaLogs.getOperaDate());
-            log.info("接收到的数据是:{}",operaLogEntity.toString());
+            ExceptLogs exceptLogs = JSONObject.parseObject(new String(message.getBody()),ExceptLogs.class);
+            ExceptLogEntity exceptLogEntity = new ExceptLogEntity();
+            exceptLogEntity.setExceptId(0L);
+            exceptLogEntity.setAccount(exceptLogs.getAccount());
+            exceptLogEntity.setAuthorities(exceptLogs.getAuthorities());
+            exceptLogEntity.setUri(exceptLogs.getUri());
+            exceptLogEntity.setIp(exceptLogs.getIp());
+            exceptLogEntity.setReqParam(exceptLogs.getReqParam());
+            exceptLogEntity.setExceptDate(exceptLogs.getExceptDate());
+            exceptLogEntity.setExceptName(exceptLogs.getExceptName());
+            exceptLogEntity.setExceptMsg(exceptLogs.getExceptMsg());
 
-            logService.insertOperaLog(operaLogEntity);
+            log.info("接收到的数据是:{}",exceptLogEntity.toString());
+
+            logService.insertExceptLog(exceptLogEntity);
             //为true表示确认之前的所有消息  false表示只来处理着当前的消息
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {

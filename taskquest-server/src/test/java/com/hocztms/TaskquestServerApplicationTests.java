@@ -142,7 +142,7 @@ class TaskquestServerApplicationTests {
     @Test
     public void test3(){
 
-        rabbitmqService.insertOperaLog(new OperaLogs("123","123","123","123","123","212","123","123",new Date()));
+//        rabbitmqService.insertOperaLog(new OperaLogs("123","123","123","123","123","212","123","123",new Date()));
 //        \private String operaModule;
 //        private String operaName;
 //        private String account;
